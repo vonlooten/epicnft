@@ -31,6 +31,9 @@ contract MyEpicNFT is ERC721URIStorage {
     ];
     string[] thirdGroup = ["Moon", "Uranus", "Neptune", "Mars", "Earth"];
 
+    event NewEpicNFTMinted(address sender, uint256 tokenId);
+
+
     // We need to pass the name of our NFTs token and its symbol.
     constructor() ERC721("VonLootenSquare", "SQUARE") {
         console.log("This is my NFT contract. Woah!");
@@ -92,6 +95,7 @@ contract MyEpicNFT is ERC721URIStorage {
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
 
+
         string memory combinedWord = string(
             abi.encodePacked(first, second, third)
         );
@@ -143,5 +147,7 @@ contract MyEpicNFT is ERC721URIStorage {
             newItemId,
             msg.sender
         );
+        // emit event
+        emit NewEpicNFTMinted(msg.sender, newItemId);
     }
 }
