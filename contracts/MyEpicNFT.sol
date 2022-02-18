@@ -137,7 +137,8 @@ contract MyEpicNFT is ERC721URIStorage {
     function makeAnEpicNFT() public {
         // Get the current tokenId, this starts at 0.
         uint256 newItemId = _tokenIds.current();
-
+        // max 50 mints
+        require(newItemId < 50, "MAXIMUM OF NFTs reached");
         // We go and randomly grab one word from each of the three arrays.
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
@@ -197,5 +198,10 @@ contract MyEpicNFT is ERC721URIStorage {
         );
         // emit event
         emit NewEpicNFTMinted(msg.sender, newItemId);
+    }
+
+
+    function getTotalNFTsMintedSoFar() public view returns (uint256) {
+        return _tokenIds.current();
     }
 }
