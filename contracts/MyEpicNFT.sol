@@ -16,7 +16,10 @@ contract MyEpicNFT is ERC721URIStorage {
 
     // Basic NFT SVG only names inside of it will be changed
     string baseSvg =
-        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='";
+
+    string endSvg =
+        "' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
 
     // Three arrays, each with their own random theme of words
     string[] firstGroup = ["Nacho", "Salsa", "Tequila", "Burrito", "Enchilada"];
@@ -31,8 +34,21 @@ contract MyEpicNFT is ERC721URIStorage {
     ];
     string[] thirdGroup = ["Moon", "Uranus", "Neptune", "Mars", "Earth"];
 
-    event NewEpicNFTMinted(address sender, uint256 tokenId);
+    string[] colors = [
+        "#db0231",
+        "#112775",
+        "#e057a7",
+        "#ed9096",
+        "#d82955",
+        "#ce9a33",
+        "#4b2eaa",
+        "#4353db",
+        "#0d998b",
+        "#fcab83",
+        "#78c63b"
+    ];
 
+    event NewEpicNFTMinted(address sender, uint256 tokenId);
 
     // We need to pass the name of our NFTs token and its symbol.
     constructor() ERC721("VonLootenSquare", "SQUARE") {
@@ -49,7 +65,13 @@ contract MyEpicNFT is ERC721URIStorage {
     {
         // seeding the random generator
         uint256 rand = random(
-            string(abi.encodePacked("FIRST_WORD", Strings.toString(tokenId)))
+            string(
+                abi.encodePacked(
+                    "FIRST_WORD",
+                    block.difficulty,
+                    Strings.toString(tokenId)
+                )
+            )
         );
         rand = rand % firstGroup.length;
         return firstGroup[rand];
@@ -62,7 +84,13 @@ contract MyEpicNFT is ERC721URIStorage {
     {
         // seeding the random generator
         uint256 rand = random(
-            string(abi.encodePacked("SECOND_WORD", Strings.toString(tokenId)))
+            string(
+                abi.encodePacked(
+                    "SECOND_WORD",
+                    block.difficulty,
+                    Strings.toString(tokenId)
+                )
+            )
         );
         rand = rand % secondGroup.length;
         return secondGroup[rand];
@@ -75,10 +103,30 @@ contract MyEpicNFT is ERC721URIStorage {
     {
         // seeding the random generator
         uint256 rand = random(
-            string(abi.encodePacked("THIRD_WORD", Strings.toString(tokenId)))
+            string(
+                abi.encodePacked(
+                    "THIRD_WORD",
+                    block.difficulty,
+                    Strings.toString(tokenId)
+                )
+            )
         );
         rand = rand % thirdGroup.length;
         return thirdGroup[rand];
+    }
+
+    function pickRandomColor(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        uint256 rand = random(
+            string(
+                abi.encodePacked(block.difficulty, Strings.toString(tokenId))
+            )
+        );
+        rand = rand % colors.length;
+        return colors[rand];
     }
 
     function random(string memory input) internal pure returns (uint256) {
@@ -94,14 +142,14 @@ contract MyEpicNFT is ERC721URIStorage {
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
-
+        string memory color = pickRandomColor(newItemId);
 
         string memory combinedWord = string(
             abi.encodePacked(first, second, third)
         );
 
         string memory finalSvg = string(
-            abi.encodePacked(baseSvg, combinedWord, "</text></svg>")
+            abi.encodePacked(baseSvg,color,endSvg, combinedWord, "</text></svg>")
         );
 
         // Get all the JSON metadata in place and base64 encode it.
